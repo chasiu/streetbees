@@ -1,0 +1,7 @@
+# We don't want to push data or reports to the github repo
+/data
+/documents
+# Environment files
+/streetbees_env
+# IDE Files
+.vscode/
