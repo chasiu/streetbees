@@ -5,3 +5,5 @@
 /streetbees_env
 # IDE Files
 .vscode/
+# Python files to ignore
+__pycache__/
