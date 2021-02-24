@@ -2,10 +2,19 @@ import os
 
 DB_URI = os.environ["DB_URI"]
 
-f = open("data/classes.txt", "r")
-CLASSES = {}
-c = 1
-for i in f:
-    CLASSES[c] = i.strip("\n")
-    c += 1
-f.close()
+CLASSES = {
+    1: "Company",
+    2: "EducationalInstitution",
+    3: "Artist",
+    4: "Athlete",
+    5: "OfficeHolder",
+    6: "MeanOfTransportation",
+    7: "Building",
+    8: "NaturalPlace",
+    9: "Village",
+    10: "Animal",
+    11: "Plant",
+    12: "Album",
+    13: "Film",
+    14: "WrittenWork",
+}
