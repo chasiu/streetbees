@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, jsonify
 from joblib import load
 import pymongo
-from config import DB_URI, CLASSES
+from config import DB_URI, CLASSES, ENV
 
 client = pymongo.MongoClient(DB_URI)
 db = client["streetbees"]
@@ -29,7 +29,7 @@ def identify():
     pred = clf.predict(vec)[0]
     text = "Name entered: {}".format(string[0])
     result = "Predicted class: {}".format(classes[pred])
-    log = {"text": str(string), "predicted_class": int(pred)}
+    log = {"text": str(string[0]), "predicted_class": int(pred)}
     logs.insert_one(log).inserted_id
     return render_template("index.html", pred=result, text=text)
 
@@ -43,10 +43,15 @@ def classify_api():
 
     vec = vectorizer.transform([name])
     pred = clf.predict(vec)[0]
+    log = {"text": str(name[0]), "predicted_class": int(pred)}
+    logs.insert_one(log).inserted_id
     result = {name: classes[pred]}
 
     return jsonify(result)
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    if ENV == "DEV":
+        app.run(debug=True)
+    elif ENV == "PROD":
+        app.run(port=5000)
