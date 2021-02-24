@@ -18,3 +18,5 @@ CLASSES = {
     13: "Film",
     14: "WrittenWork",
 }
+
+ENV = os.environ["ENV"]
