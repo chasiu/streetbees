@@ -43,7 +43,7 @@ def classify_api():
 
     vec = vectorizer.transform([name])
     pred = clf.predict(vec)[0]
-    log = {"text": str(name[0]), "predicted_class": int(pred)}
+    log = {"text": str(name), "predicted_class": int(pred)}
     logs.insert_one(log).inserted_id
     result = {name: classes[pred]}
 
