@@ -1,14 +1,13 @@
 from flask import Flask, render_template, request, redirect, jsonify
 from joblib import load
 import pymongo
-from config import DB_URI, CLASSES, ENV
+from config import DB_URI, CLASSES, ENV, stopwords
 import text_processing as tp
-import nltk
+
 
 client = pymongo.MongoClient(DB_URI)
 db = client["streetbees"]
 logs = db.logs
-stopwords = nltk.corpus.stopwords.words("english")
 
 app = Flask(__name__)
 
@@ -57,7 +56,7 @@ def classify_api():
 
 
 if __name__ == "__main__":
-    if ENV == "DEV":
-        app.run(debug=True)
-    elif ENV == "PROD":
+    if ENV == "PROD":
         app.run(port=5000)
+    else:
+        app.run(debug=True)
