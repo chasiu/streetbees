@@ -2,16 +2,18 @@ from flask import Flask, render_template, request, redirect, jsonify
 from joblib import load
 import pymongo
 from config import DB_URI, CLASSES, ENV
+import text_processing as tp
+import nltk
 
 client = pymongo.MongoClient(DB_URI)
 db = client["streetbees"]
 logs = db.logs
-
+stopwords = nltk.corpus.stopwords.words("english")
 
 app = Flask(__name__)
 
-clf = load("models/base_model.joblib")
-vectorizer = load("models/vectorizer.joblib")
+pipe = load("models/model.joblib")
+
 classes = CLASSES
 
 
@@ -23,13 +25,15 @@ def data_entry():
 
 @app.route("/results", methods=["POST"])
 def identify():
-    string = [request.form["data"]]
-    # TODO Cleaning script
-    vec = vectorizer.transform(string)
-    pred = clf.predict(vec)[0]
-    text = "Name entered: {}".format(string[0])
+    raw_name = request.form["data"]
+    name = raw_name.lower()
+    name = tp.drop_stop(name, stopwords)
+    name = tp.drop_chars(name)
+    name = tp.drop_whitespace(name)
+    pred = pipe.predict([name])[0]
+    text = "Name entered: {}".format(raw_name)
     result = "Predicted class: {}".format(classes[pred])
-    log = {"text": str(string[0]), "predicted_class": int(pred)}
+    log = {"text": str(raw_name), "predicted_class": int(pred)}
     logs.insert_one(log).inserted_id
     return render_template("index.html", pred=result, text=text)
 
@@ -37,13 +41,15 @@ def identify():
 @app.route("/api/v1/names/classify", methods=["GET"])
 def classify_api():
     if "name" in request.args:
-        name = str(request.args["name"])
+        raw_name = str(request.args["name"])
     else:
         return "Error. Please no name field provied. Please provide a name."
-
-    vec = vectorizer.transform([name])
-    pred = clf.predict(vec)[0]
-    log = {"text": str(name), "predicted_class": int(pred)}
+    name = raw_name.lower()
+    name = tp.drop_stop(name, stopwords)
+    name = tp.drop_chars(name)
+    name = tp.drop_whitespace(name)
+    pred = pipe.predict([name])[0]
+    log = {"text": str(raw_name), "predicted_class": int(pred)}
     logs.insert_one(log).inserted_id
     result = {name: classes[pred]}
 
